@@ -5,7 +5,7 @@ import struct
 import json
 
 # --- 설정 (환경에 맞게 수정 가능) ---
-PACKAGE_NAME = "jp.gungho.padko"  # 한국판 패키지명 (일판은 jp.gungho.pad)
+PACKAGE_NAME = "jp.gungho.padKO"  # 대소문자 구분: jp.gungho.padKO
 REMOTE_PATH = f"/data/data/{PACKAGE_NAME}/files/mon2/" # 실제 데이터 저장 위치
 LOCAL_TMP_DIR = "tmp_pad_data"
 OUTPUT_JSON = "pad_monster_data.json"

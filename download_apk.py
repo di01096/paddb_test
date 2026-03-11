@@ -2,28 +2,30 @@ import requests
 import os
 import sys
 
-def download_pad_apk(package_name="jp.gungho.padko", output_filename="pad_ko.apk"):
+def download_pad_apk(package_name="jp.gungho.padKO", output_filename="pad_ko.apk"):
     """
     Aptoide API를 사용하여 패키지 이름으로 최신 APK 다운로드 링크를 찾고 다운로드합니다.
     """
     print(f"[*] '{package_name}' 최신 버전 찾는 중...")
     
-    # Aptoide API 엔드포인트
-    api_url = f"https://ws75.aptoide.com/api/7/getApp?package_name={package_name}"
+    # Aptoide API v7 검색 엔드포인트
+    api_url = f"https://ws75.aptoide.com/api/7/apps/search?query=package:{package_name}&limit=1"
     
     try:
         response = requests.get(api_url)
         response.raise_for_status()
         data = response.json()
         
-        if data.get('nodes', {}).get('meta', {}).get('data', {}).get('status') == 'ERROR':
+        datalist = data.get('datalist', {}).get('list', [])
+        if not datalist:
             print(f"[!] 에러: 해당 패키지를 찾을 수 없습니다. ({package_name})")
             return False
             
         # 다운로드 URL 추출
-        app_data = data.get('nodes', {}).get('revisions', {}).get('list', [{}])[0]
-        download_url = app_data.get('file', {}).get('path')
-        version = app_data.get('file', {}).get('vername')
+        app_data = datalist[0]
+        file_info = app_data.get('file', {})
+        download_url = file_info.get('path')
+        version = file_info.get('vername')
         
         if not download_url:
             print("[!] 다운로드 링크를 추출하지 못했습니다.")

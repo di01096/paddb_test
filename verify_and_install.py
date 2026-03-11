@@ -4,8 +4,8 @@ import time
 from download_apk import download_pad_apk
 
 # --- 설정 ---
-PACKAGE_NAME = "jp.gungho.padko"
-MAIN_ACTIVITY = "jp.gungho.padko/jp.gungho.padko.Pad"
+PACKAGE_NAME = "jp.gungho.padKO"
+MAIN_ACTIVITY = "jp.gungho.padKO/jp.gungho.padKO.Pad"
 DATA_PATH = f"/data/data/{PACKAGE_NAME}/files/mon2" # 몬스터 데이터 경로
 APK_FILE = "pad_ko.apk" # 로컬에 있는 APK 파일명
 
