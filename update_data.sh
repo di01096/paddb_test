@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # --- 설정 ---
-CONTAINER_NAME="redroid"
+CONTAINER_NAME="redroid_v7"
 ADB_TARGET="localhost:5555"
 PYTHON_EXTRACT_SCRIPT="direct_extract_ubuntu.py"
 
