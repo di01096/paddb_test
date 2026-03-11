@@ -2,8 +2,6 @@
 
 퍼즐앤드래곤(PAD)의 몬스터 정보를 한눈에 확인하고 상세하게 검색할 수 있는 웹 기반 카드 도감 서비스입니다.
 
-![PAD Guide Preview](https://github.com/di01096/paddb_test/blob/main/awoken.png?raw=true)
-
 ## 🚀 주요 기능
 
 - **강력한 검색 및 필터링**:
