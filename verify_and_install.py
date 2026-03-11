@@ -9,14 +9,14 @@ MAIN_ACTIVITY = "jp.gungho.padKO/.AppDelegate"
 DATA_PATH = f"/data/data/{PACKAGE_NAME}/files/mon2" # 몬스터 데이터 경로
 APK_FILE = "pad_ko.apk" # 로컬에 있는 APK 파일명
 
-def run_waydroid(cmd):
-    full_cmd = f"waydroid {cmd}"
+def run_adb(cmd):
+    full_cmd = f"adb -s localhost:5555 {cmd}"
     res = subprocess.run(full_cmd, shell=True, capture_output=True, text=True)
     return res.stdout.strip()
 
 def check_package_installed():
     print("[*] 패키지 설치 확인 중...")
-    res = run_waydroid(f"app list")
+    res = run_adb(f"shell pm list packages {PACKAGE_NAME}")
     return PACKAGE_NAME in res
 
 def install_apk():
@@ -27,29 +27,30 @@ def install_apk():
             return False
             
     print(f"[*] {APK_FILE} 설치 시작... (시간이 걸릴 수 있습니다)")
-    run_waydroid(f"app install {APK_FILE}")
+    run_adb(f"install -r {APK_FILE}")
     return True
 
 def ensure_data_exists():
     """폴더가 없으면 게임을 실행하고 클릭 매크로를 돌려 데이터를 생성시킵니다."""
     print("[*] 데이터 폴더 존재 여부 확인 중...")
-    # Waydroid에서는 shell을 통해 파일 시스템 접근 가능
-    res = run_waydroid(f"shell ls -d {DATA_PATH}")
+    # adb shell을 통해 폴더 확인
+    res = run_adb(f"shell ls -d {DATA_PATH}")
     
     if "No such file" in res or not res:
         print("[!] 데이터 폴더가 없습니다. 게임을 실행하여 다운로드를 시작합니다.")
         
-        # 1. 게임 실행 (Waydroid 전용 런칭 명령어)
-        run_waydroid(f"app launch {PACKAGE_NAME}")
-        time.sleep(15) # 부팅 대기
+        # 1. 게임 실행
+        run_adb(f"shell am start -n {MAIN_ACTIVITY}")
+        print("[*] 앱 실행 중... 20초간 대기합니다.")
+        time.sleep(20)
         
-        # 2. 클릭 매크로 (Waydroid shell input tap 사용)
+        # 2. 클릭 매크로 (일반적인 좌표 기준)
         print("[*] 다운로드 승인 버튼 클릭 시도 중...")
-        run_waydroid("shell input tap 540 1500") 
+        run_adb("shell input tap 540 1500") 
         time.sleep(2)
-        run_waydroid("shell input tap 540 1100")
+        run_adb("shell input tap 540 1100")
         
-        print("[*] 데이터 다운로드 중... (10분 이상 대기)")
+        print("[*] 데이터 다운로드 시작 유도 완료. (10분 이상 대기)")
         return False
     else:
         print("[+] 데이터 폴더 확인 완료: " + res)

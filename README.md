@@ -70,21 +70,21 @@ docker-compose up -d
 
 실행 후 브라우저에서 `http://localhost:8080` (기본 설정 포트)으로 접속하세요.
 
-## 🚀 데이터 추출 및 최초 업데이트 가이드 (Waydroid 기반)
+## 🚀 데이터 추출 및 최초 업데이트 가이드 (Redroid 기반)
 
-이 프로젝트는 우분투 환경에서 **Waydroid**를 사용하여 직접 데이터를 추출하는 기능을 포함합니다. Waydroid는 Docker보다 뛰어난 앱 호환성과 보안 우회 성능을 제공합니다.
+이 프로젝트는 우분투 환경에서 **Docker(Redroid)**를 사용하여 직접 데이터를 추출하는 기능을 포함합니다. 특히 퍼즐앤드래곤의 보안(Root 탐지)을 우회하기 위한 자동화 스크립트가 포함되어 있습니다.
 
-### 1. 환경 구축 (Waydroid)
-1.  **Waydroid 설치**: 제공된 스크립트로 Waydroid를 설치하고 초기화합니다.
+### 1. 환경 구축 (Redroid)
+1.  **Redroid 및 보안 설정**: 다음 스크립트 하나로 컨테이너 실행, 기기 위장, 루트 파일 은폐를 모두 처리합니다.
     ```bash
-    chmod +x waydroid_setup.sh
-    ./waydroid_setup.sh
+    chmod +x redroid_setup.sh
+    ./redroid_setup.sh
     ```
 2.  **APK 설치 및 초기 업데이트**:
     ```bash
     python verify_and_install.py
     ```
-    *   이 스크립트는 APK를 다운로드/설치하고, 게임을 실행하여 초기 데이터 다운로드를 시작시킵니다.
+    *   이 스크립트는 최신 APK를 다운로드/설치하고, 게임을 실행하여 초기 데이터 다운로드를 시작시킵니다.
     *   **대기**: 데이터 다운로드(수 GB)가 완료될 때까지 약 10~30분 정도 기다립니다.
 
 ### 2. 데이터 추출 및 파싱
@@ -95,8 +95,8 @@ docker-compose up -d
 *   추출된 결과는 `pad_monster_data.json`으로 저장됩니다.
 
 ### 💡 팁
-- **화면 모니터링**: `waydroid shell screencap -p /sdcard/screen.png`로 화면을 캡처하여 진행 상황을 확인할 수 있습니다.
-- **세션 관리**: Waydroid는 `waydroid session stop`으로 종료할 수 있습니다.
+- **화면 모니터링**: `adb -s localhost:5555 shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png`로 상태를 확인하세요.
+- **자원 정리**: `./cleanup_data.sh`로 컨테이너를 중지할 수 있습니다.
 
 ## 📝 라이선스
 이 프로젝트는 교육 및 참고 목적으로 제작되었습니다. 퍼즐앤드래곤에 대한 저작권은 GungHo Online Entertainment에 있습니다.

@@ -1,27 +1,25 @@
 #!/bin/bash
 
 # --- 설정 ---
+CONTAINER_NAME="redroid"
+ADB_TARGET="localhost:5555"
 PYTHON_EXTRACT_SCRIPT="direct_extract_ubuntu.py"
 
 echo "==========================================="
-echo "🐉 PAD 데이터 자동 업데이트 (Waydroid 기반)"
+echo "🐉 PAD 데이터 자동 업데이트 (Redroid 기반)"
 echo "==========================================="
 
-# 1. Waydroid 설치 확인
-if ! command -v waydroid &> /dev/null; then
-    echo "[!] Waydroid가 설치되어 있지 않습니다. waydroid_setup.sh를 먼저 실행하세요."
+# 1. Docker 컨테이너 상태 확인
+if [ ! "$(sudo docker ps -q -f name=$CONTAINER_NAME)" ]; then
+    echo "[!] Redroid 컨테이너가 실행 중이지 않습니다."
+    echo "[*] redroid_setup.sh를 먼저 실행하여 환경을 구축하세요."
     exit 1
 fi
 
-# 2. Waydroid 세션 확인 및 시작
-STATUS=$(waydroid status | grep "Session")
-if [[ $STATUS == *"not running"* ]]; then
-    echo "[*] Waydroid 세션을 시작합니다..."
-    waydroid session start &
-    sleep 10
-else
-    echo "[+] Waydroid 세션이 이미 실행 중입니다."
-fi
+# 2. ADB 연결 확인
+echo "[*] ADB 연결 확인: $ADB_TARGET"
+adb connect $ADB_TARGET &> /dev/null
+sleep 2
 
 # 3. 데이터 추출 및 파싱 스크립트 실행
 if [ -f "$PYTHON_EXTRACT_SCRIPT" ]; then
