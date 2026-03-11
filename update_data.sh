@@ -9,6 +9,25 @@ echo "==========================================="
 echo "🐉 PAD 데이터 자동 업데이트 시작"
 echo "==========================================="
 
+# 0. ADB 설치 확인 및 자동 설치 (우분투/데비안 기반)
+if ! command -v adb &> /dev/null; then
+    echo "[!] ADB가 설치되어 있지 않습니다. 자동 설치를 시도합니다..."
+    if command -v apt &> /dev/null; then
+        sudo apt update && sudo apt install -y adb
+        if [ $? -eq 0 ]; then
+            echo "[+] ADB 설치 성공!"
+        else
+            echo "[!] ADB 설치 실패. 수동으로 설치해 주세요."
+            exit 1
+        fi
+    else
+        echo "[!] 'apt' 패키지 관리자를 찾을 수 없습니다. 수동으로 ADB를 설치해 주세요."
+        exit 1
+    fi
+else
+    echo "[+] ADB가 이미 설치되어 있습니다."
+fi
+
 # 1. Docker 컨테이너 상태 확인 및 실행
 if [ ! "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
     if [ "$(docker ps -aq -f status=exited -f name=$CONTAINER_NAME)" ]; then
