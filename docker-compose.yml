@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  pad-guide:
+    build: .
+    container_name: pad-card-guide
+    ports:
+      - "${PORT:-8080}:80"
+    volumes:
+      - ./awakenings:/app/awakenings
+      - ./awoken.png:/app/awoken.png
+    restart: unless-stopped

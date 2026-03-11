@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="퍼즐앤드래곤(PAD) 카드 도감 - 몬스터 검색, 스킬, 각성 정보를 한눈에">
+  <title>PAD 카드 도감 | 퍼즐앤드래곤 몬스터 가이드</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐉</text></svg>">
+</head>
+
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="loading-logo">🐉</div>
+    <div class="loading-title">PAD 카드 도감</div>
+    <div class="loading-progress-container">
+      <div class="loading-progress-bar">
+        <div id="progress-fill" class="loading-progress-fill"></div>
+      </div>
+      <div id="loading-status" class="loading-status">데이터를 불러오는 중...</div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-content">
+      <a href="#" class="app-logo" id="logo-link">
+        <div class="app-logo-icon">🐉</div>
+        <span class="app-logo-text">PAD 카드 도감</span>
+      </a>
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="search-input" placeholder="카드 이름 또는 번호로 검색..." autocomplete="off">
+      </div>
+      <div class="stats-bar">
+        <span class="stat-badge" id="total-count">전체: -</span>
+        <span class="stat-badge" id="shown-count">표시: -</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filters -->
+  <div class="filter-section" id="filter-section">
+    <div class="filter-group">
+      <span class="filter-label">주속성</span>
+      <button class="filter-btn active" data-attr-main="all">전체</button>
+      <button class="filter-btn" data-attr-main="0">🔴 화</button>
+      <button class="filter-btn" data-attr-main="1">🔵 수</button>
+      <button class="filter-btn" data-attr-main="2">🟢 목</button>
+      <button class="filter-btn" data-attr-main="3">🟡 광</button>
+      <button class="filter-btn" data-attr-main="4">🟣 암</button>
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-group">
+      <span class="filter-label">부속성</span>
+      <button class="filter-btn active" data-attr-sub="all">전체</button>
+      <button class="filter-btn" data-attr-sub="-1">없음</button>
+      <button class="filter-btn" data-attr-sub="0">🔴 화</button>
+      <button class="filter-btn" data-attr-sub="1">🔵 수</button>
+      <button class="filter-btn" data-attr-sub="2">🟢 목</button>
+      <button class="filter-btn" data-attr-sub="3">🟡 광</button>
+      <button class="filter-btn" data-attr-sub="4">🟣 암</button>
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-group">
+      <span class="filter-label">제3속성</span>
+      <button class="filter-btn active" data-attr-third="all">전체</button>
+      <button class="filter-btn" data-attr-third="-1">없음</button>
+      <button class="filter-btn" data-attr-third="0">🔴 화</button>
+      <button class="filter-btn" data-attr-third="1">🔵 수</button>
+      <button class="filter-btn" data-attr-third="2">🟢 목</button>
+      <button class="filter-btn" data-attr-third="3">🟡 광</button>
+      <button class="filter-btn" data-attr-third="4">🟣 암</button>
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-group">
+      <span class="filter-label">타입</span>
+      <button class="filter-btn active" data-type="all">전체</button>
+      <button class="filter-btn" data-type="1">밸런스</button>
+      <button class="filter-btn" data-type="2">체력</button>
+      <button class="filter-btn" data-type="3">회복</button>
+      <button class="filter-btn" data-type="4">드래곤</button>
+      <button class="filter-btn" data-type="5">신</button>
+      <button class="filter-btn" data-type="6">공격</button>
+      <button class="filter-btn" data-type="7">악마</button>
+      <button class="filter-btn" data-type="8">머신</button>
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-group">
+      <span class="filter-label">레어도</span>
+      <button class="filter-btn active" data-rarity="all">전체</button>
+      <button class="filter-btn" data-rarity="5">★5+</button>
+      <button class="filter-btn" data-rarity="6">★6+</button>
+      <button class="filter-btn" data-rarity="7">★7+</button>
+      <button class="filter-btn" data-rarity="8">★8+</button>
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-group">
+      <span class="filter-label">정렬</span>
+      <button class="filter-btn active" data-sort="id-desc">번호↓</button>
+      <button class="filter-btn" data-sort="id-asc">번호↑</button>
+      <button class="filter-btn" data-sort="rarity">레어도</button>
+      <button class="filter-btn" data-sort="hp">HP</button>
+      <button class="filter-btn" data-sort="atk">공격</button>
+      <button class="filter-btn" data-sort="rcv">회복</button>
+    </div>
+    <div class="filter-divider"></div>
+    <div class="filter-group">
+      <span class="filter-label">특수검색</span>
+      <button class="filter-btn" id="awaken-toggle-btn">🌟 각성 선택 <span class="awaken-count-badge"
+          id="awaken-count-badge"></span></button>
+      <button class="filter-btn" id="awaken-clear-btn" style="display:none;">✕ 초기화</button>
+      <input type="text" class="filter-input" id="skill-search" placeholder="스킬명 검색..." autocomplete="off">
+    </div>
+  </div>
+
+  <!-- Awakening Icon Checkbox Panel -->
+  <div class="awaken-panel" id="awaken-panel" style="display:none;">
+    <div class="awaken-panel-header">
+      <span class="awaken-panel-title">각성 스킬 선택 (중복 가능)</span>
+      <div style="flex:1;"></div>
+      <button class="filter-btn" id="awaken-search-btn"
+        style="margin-right: 8px; background: var(--attr-water); color: white; border-color: var(--attr-water);">검색
+        실행</button>
+      <button class="awaken-panel-close" id="awaken-panel-close">✕</button>
+    </div>
+    <div class="awaken-selected-tray" id="awaken-selected-tray">
+      <span class="awaken-selected-placeholder" id="awaken-selected-placeholder">추가할 각성을 아래에서 클릭하세요.</span>
+      <div class="awaken-selected-list" id="awaken-selected-list"></div>
+    </div>
+    <div class="awaken-panel-body" id="awaken-panel-body">
+      <!-- Icons will be generated by JS -->
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="card-grid" id="card-grid"></div>
+    <div class="load-more-container" id="load-more-container" style="display:none;">
+      <button class="load-more-btn" id="load-more-btn">더 보기</button>
+    </div>
+    <div class="empty-state" id="empty-state" style="display:none;">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-text">검색 결과가 없습니다</div>
+    </div>
+  </main>
+
+  <!-- Card Detail Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-content" id="modal-content">
+      <button class="modal-close-btn" id="modal-close">✕</button>
+      <div class="modal-header">
+        <div class="modal-card-image" id="modal-image"></div>
+        <div class="modal-card-info">
+          <div class="modal-card-id" id="modal-card-id"></div>
+          <div class="modal-card-name" id="modal-card-name"></div>
+          <div class="modal-card-attrs" id="modal-card-attrs"></div>
+          <div class="rarity-stars" id="modal-rarity"></div>
+          <div class="type-badges" id="modal-types"></div>
+        </div>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Scroll to Top -->
+  <button class="scroll-top-btn" id="scroll-top-btn">↑</button>
+
+  <script src="js/data-loader.js?v=9"></script>
+  <script src="js/data-parser.js?v=9"></script>
+  <script src="js/card-list.js?v=9"></script>
+  <script src="js/card-detail.js?v=9"></script>
+  <script src="js/main.js?v=9"></script>
+</body>
+
+</html>
