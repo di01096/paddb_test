@@ -5,6 +5,31 @@ CONTAINER_NAME="redroid"
 ADB_TARGET="localhost:5555"
 PYTHON_EXTRACT_SCRIPT="direct_extract_ubuntu.py"
 
+# --- 정리 함수 (종료 시 실행) ---
+cleanup() {
+    echo ""
+    echo "==========================================="
+    echo "[*] 자원 정리 중..."
+    
+    # ADB 연결 해제
+    if command -v adb &> /dev/null; then
+        echo "[*] ADB 연결 해제 ($ADB_TARGET)..."
+        adb disconnect $ADB_TARGET &> /dev/null
+    fi
+
+    # Docker 컨테이너 중지
+    if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
+        echo "[*] Docker 컨테이너 중지 ($CONTAINER_NAME)..."
+        docker stop $CONTAINER_NAME &> /dev/null
+    fi
+    
+    echo "[+] 정리 완료."
+    echo "==========================================="
+}
+
+# 에러(ERR), 종료(EXIT), 중단(SIGINT, SIGTERM) 시 cleanup 함수 호출
+trap cleanup ERR EXIT SIGINT SIGTERM
+
 echo "==========================================="
 echo "🐉 PAD 데이터 자동 업데이트 시작"
 echo "==========================================="
