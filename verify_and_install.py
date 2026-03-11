@@ -1,6 +1,7 @@
 import os
 import subprocess
 import time
+from download_apk import download_pad_apk
 
 # --- 설정 ---
 PACKAGE_NAME = "jp.gungho.padko"
@@ -19,12 +20,14 @@ def check_package_installed():
     return PACKAGE_NAME in res
 
 def install_apk():
-    if os.path.exists(APK_FILE):
-        print(f"[*] {APK_FILE} 설치 시작... (시간이 걸릴 수 있습니다)")
-        run_adb(f"install {APK_FILE}")
-    else:
-        print(f"[!] {APK_FILE} 파일이 없습니다. APK를 먼저 준비해 주세요.")
-        return False
+    if not os.path.exists(APK_FILE):
+        print(f"[!] {APK_FILE} 파일이 없습니다. 자동 다운로드를 시도합니다...")
+        if not download_pad_apk(PACKAGE_NAME, APK_FILE):
+            print("[!] APK 다운로드에 실패했습니다. 수동으로 파일을 준비해 주세요.")
+            return False
+            
+    print(f"[*] {APK_FILE} 설치 시작... (시간이 걸릴 수 있습니다)")
+    run_adb(f"install {APK_FILE}")
     return True
 
 def ensure_data_exists():

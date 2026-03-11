@@ -77,7 +77,7 @@ docker-compose up -d
 ### 1. 최초 데이터 생성 (Initial Update)
 게임을 처음 설치하면 수 GB의 데이터 다운로드가 필요합니다. 헤드리스 환경에서 이를 처리하는 방법입니다.
 
-1.  **APK 준비**: 한국판 퍼즐앤드래곤 APK(`pad_ko.apk`)를 프로젝트 폴더에 준비합니다.
+1.  **APK 자동 다운로드**: 프로젝트 폴더에 `pad_ko.apk`가 없으면 `verify_and_install.py`가 외부 API를 통해 최신 APK를 자동으로 다운로드합니다. (수동 준비 불필요)
 2.  **환경 구성**: `headless_automation_setup.py` 또는 `update_data.sh`를 실행하여 Docker 안드로이드를 띄웁니다.
 3.  **설치 및 클릭 매크로 실행**:
     ```bash
