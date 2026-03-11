@@ -70,5 +70,39 @@ docker-compose up -d
 
 실행 후 브라우저에서 `http://localhost:8080` (기본 설정 포트)으로 접속하세요.
 
+## 🚀 데이터 추출 및 최초 업데이트 가이드 (Ubuntu/Docker)
+
+이 프로젝트는 안드로이드 환경(물리 기기 또는 Redroid Docker)에서 직접 데이터를 추출하는 기능을 포함합니다.
+
+### 1. 최초 데이터 생성 (Initial Update)
+게임을 처음 설치하면 수 GB의 데이터 다운로드가 필요합니다. 헤드리스 환경에서 이를 처리하는 방법입니다.
+
+1.  **APK 준비**: 한국판 퍼즐앤드래곤 APK(`pad_ko.apk`)를 프로젝트 폴더에 준비합니다.
+2.  **환경 구성**: `headless_automation_setup.py` 또는 `update_data.sh`를 실행하여 Docker 안드로이드를 띄웁니다.
+3.  **설치 및 클릭 매크로 실행**:
+    ```bash
+    python verify_and_install.py
+    ```
+    *   이 스크립트는 APK를 설치하고 게임을 실행한 뒤, 화면의 특정 좌표(약관 동의 등)를 자동으로 터치하여 다운로드를 시작시킵니다.
+4.  **다운로드 상태 확인**:
+    실시간으로 화면을 볼 수 없는 경우, 다음 명령어로 스크린샷을 찍어 확인합니다.
+    ```bash
+    adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png
+    ```
+    *   다운로드가 완료되어 로비 화면(또는 튜토리얼 입구)이 보일 때까지 대기합니다. (네트워크에 따라 10~30분 소요)
+
+### 2. 데이터 추출 및 파싱
+데이터 폴더가 생성된 후 다음 명령으로 최종 JSON을 생성합니다.
+```bash
+./update_data.sh
+```
+*   추출된 결과는 `pad_monster_data.json`으로 저장됩니다.
+
+### 3. 자원 정리
+작업이 끝난 후 실행 중인 안드로이드 환경을 종료하려면 다음을 실행합니다.
+```bash
+./cleanup_data.sh
+```
+
 ## 📝 라이선스
 이 프로젝트는 교육 및 참고 목적으로 제작되었습니다. 퍼즐앤드래곤에 대한 저작권은 GungHo Online Entertainment에 있습니다.
