@@ -1,0 +1,8 @@
+{
+    "host": "your_server_ip",
+    "port": 22,
+    "username": "your_username",
+    "password": "your_password",
+    "remote_path": "/path/to/paddb/tmp_pad_data/",
+    "local_path": "./tmp_pad_data/"
+}
