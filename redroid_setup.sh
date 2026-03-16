@@ -13,10 +13,10 @@ sudo docker stop $CONTAINER_NAME &> /dev/null
 sudo docker rm $CONTAINER_NAME &> /dev/null
 adb disconnect $ADB_TARGET &> /dev/null
 
-# 2. Redroid 컨테이너 실행 (강화된 보안 위장 옵션)
+# 2. Redroid 컨테이너 실행 (안정적인 한 줄 형식)
 echo "[*] Redroid 컨테이너 실행 (정밀 위장 옵션 주입)..."
 sudo docker run -d --privileged \
-    --name $CONTAINER_NAME \
+    --name redroid \
     -p 5555:5555 \
     redroid/redroid:11.0.0-latest \
     androidboot.redroid_fps=60 \
@@ -34,8 +34,7 @@ sudo docker run -d --privileged \
     ro.build.fingerprint="samsung/o1qks/o1q:11/RP1A.200720.012/G991NKSU3AUK1:user/release-keys" \
     ro.build.description="o1qks-user 11 RP1A.200720.012 G991NKSU3AUK1 release-keys" \
     ro.boot.flash.locked=1 \
-    ro.boot.verifiedbootstate=green \
-    ro.expect.recovery_id=0x0000000000000000000000000000000000000000
+    ro.boot.verifiedbootstate=green
 
 echo "[*] 안드로이드 부팅 대기 중 (25초)..."
 sleep 25
