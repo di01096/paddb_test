@@ -2,7 +2,7 @@
 
 # --- 설정 (Waydroid 경로 관리) ---
 # 호스트 리눅스상의 Waydroid 사용자 데이터 루트 경로
-WAYDROID_HOST_DATA="$HOME/.local/share/waydroid/data/media/0"
+WAYDROID_HOST_DATA="$HOME/.local/share/waydroid/data"
 # 안드로이드 내부에서 보일 경로 (Download 폴더)
 ANDROID_DEST_DIR="/sdcard/Download/pad_install"
 # 실제 호스트상에서 파일이 복사될 절대 경로
