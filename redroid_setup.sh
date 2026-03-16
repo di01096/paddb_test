@@ -33,8 +33,16 @@ sudo docker run -d --privileged \
 echo "[*] 안드로이드 부팅 대기 중 (20초)..."
 sleep 20
 
-# 3. ADB 자동 연결
-echo "[*] ADB 연결 시도: $ADB_TARGET"
+# 3. ADB 자동 연결 및 키 주입 (unauthorized 해결)
+echo "[*] ADB 키 주입 및 연결 시도..."
+if [ -f ~/.android/adbkey.pub ]; then
+    ADB_PUB_KEY=$(cat ~/.android/adbkey.pub)
+    sudo docker exec -i $CONTAINER_NAME sh -c "mkdir -p /data/misc/adb && echo '$ADB_PUB_KEY' >> /data/misc/adb/adb_keys"
+    sudo docker exec -i $CONTAINER_NAME sh -c "chown system:shell /data/misc/adb/adb_keys && chmod 640 /data/misc/adb/adb_keys"
+    echo "[+] ADB 키 주입 완료."
+fi
+
+adb disconnect $ADB_TARGET &> /dev/null
 adb connect $ADB_TARGET
 sleep 5
 
