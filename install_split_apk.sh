@@ -1,78 +1,37 @@
 #!/bin/bash
 
-# --- 설정 (Waydroid 경로 관리) ---
-# 호스트 리눅스상의 Waydroid 사용자 데이터 루트 경로
-WAYDROID_HOST_DATA="$HOME/.local/share/waydroid/data"
-# 안드로이드 내부에서 보일 경로 (Download 폴더)
-ANDROID_DEST_DIR="/sdcard/Download/pad_install"
-# 실제 호스트상에서 파일이 복사될 절대 경로
-HOST_DEST_DIR="$WAYDROID_HOST_DATA/Download/pad_install"
-
-# 조각난 APK 파일 리스트
+# --- 설정 ---
+WAYDROID_IP="192.168.240.112"
+# 설치할 APK 조각들 리스트
 APK_FILES=("pad_ko.apk" "pad_ko_1.apk" "pad_ko_2.apk" "pad_ko_3.apk" "pad_ko_4.apk")
 
 echo "==========================================="
-echo "📦 Waydroid 경로 직접 주입형 Split APK 설치"
+echo "📦 ADB install-multiple 기반 Split APK 설치"
 echo "==========================================="
 
-# 1. 호스트 경로 존재 여부 확인 및 폴더 생성
-if [ ! -d "$WAYDROID_HOST_DATA" ]; then
-    echo "[!] Waydroid 데이터 경로를 찾을 수 없습니다: $WAYDROID_HOST_DATA"
-    echo "[*] Waydroid가 설치되어 있고 한 번이라도 실행되었는지 확인하세요."
+# 1. ADB 연결 확인
+echo "[*] Waydroid ADB 연결 시도 ($WAYDROID_IP)..."
+adb disconnect $WAYDROID_IP:5555 &> /dev/null
+adb connect $WAYDROID_IP:5555
+sleep 2
+
+if ! adb devices | grep -q "$WAYDROID_IP:5555.*device"; then
+    echo "[!] ADB 연결 실패! 'waydroid_setup.sh'가 정상 완료되었는지 확인하세요."
     exit 1
 fi
+echo "[+] ADB 연결 성공!"
 
-echo "[*] Waydroid 데이터 영역으로 파일 복사 중..."
-mkdir -p "$HOST_DEST_DIR"
+# 2. 통합 설치 실행 (install-multiple)
+echo "[*] 모든 APK 조각 통합 설치 시작..."
+# -r: 재설치/업데이트, -g: 모든 권한 자동 승인
+adb -s $WAYDROID_IP:5555 install-multiple -r -g "${APK_FILES[@]}"
 
-for f in "${APK_FILES[@]}"; do
-    if [ -f "$f" ]; then
-        cp "$f" "$HOST_DEST_DIR/"
-        echo "  > $f 복사 완료"
-    else
-        echo "  [!] $f 파일이 현재 폴더에 없습니다. 건너뜁니다."
-    fi
-done
-
-# 2. Waydroid 세션 확인
-if ! waydroid status | grep -q "RUNNING"; then
-    echo "[!] Waydroid 세션이 실행 중이지 않습니다."
-    echo "[*] './waydroid_launch_apk.sh'를 먼저 실행해 주세요."
-    exit 1
-fi
-
-# 3. 설치 세션 생성
-echo "[*] 안드로이드 설치 세션 생성 중..."
-SESSION_RAW=$(sudo waydroid shell "pm install-create -r -g")
-SESSION_ID=$(echo "$SESSION_RAW" | grep -oE '[0-9]+')
-
-if [ -z "$SESSION_ID" ]; then
-    echo "[!] 세션 생성 실패: $SESSION_RAW"
-    exit 1
-fi
-echo "[+] 생성된 세션 ID: $SESSION_ID"
-
-# 4. 세션에 파일 등록 (안드로이드 내부 경로 기준)
-for f in "${APK_FILES[@]}"; do
-    if [ -f "$f" ]; then
-        echo "[*] 세션에 조각 추가: $f"
-        sudo waydroid shell "pm install-write $SESSION_ID ${f%.*} $ANDROID_DEST_DIR/$f"
-    fi
-done
-
-# 5. 설치 확정 (Commit)
-echo "[*] 최종 설치 승인(Commit) 중..."
-RESULT=$(sudo waydroid shell "pm install-commit $SESSION_ID")
-
-if [[ $RESULT == *"Success"* ]]; then
+if [ $? -eq 0 ]; then
     echo "==========================================="
     echo "[+] 축하합니다! 설치가 성공했습니다."
-    echo "[*] 패키지: jp.gungho.padKO"
+    echo "[*] 이제 './waydroid_launch_apk.sh'를 실행하세요."
     echo "==========================================="
 else
-    echo "[!] 설치 실패: $RESULT"
+    echo "[!] 설치 실패! 현재 폴더에 모든 APK 조각이 있는지 확인하세요."
+    exit 1
 fi
-
-# 6. 호스트 임시 파일 정리
-echo "[*] 임시 파일 정리 중..."
-rm -rf "$HOST_DEST_DIR"
