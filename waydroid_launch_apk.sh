@@ -1,59 +1,45 @@
 #!/bin/bash
 
 # --- 설정 ---
+WAYDROID_IP="192.168.240.112"
+# 설치할 APK 조각들 (현재 폴더에 있어야 함)
+APK_FILES=("pad_ko.apk" "pad_ko_1.apk" "pad_ko_2.apk" "pad_ko_3.apk" "pad_ko_4.apk")
 PACKAGE_NAME="jp.gungho.padKO"
-APK_FILE="pad_ko.apk"
+MAIN_ACTIVITY="jp.gungho.padKO/.AppDelegate"
 
 echo "==========================================="
-echo "🌀 Waydroid 가상 세션 가동 및 APK 자동 실행"
+echo "📦 ADB 기반 Split APK 통합 설치 및 실행"
 echo "==========================================="
 
-# 1. 환경 변수 및 가상 디스플레이 설정
-export XDG_RUNTIME_DIR=/run/user/$(id -u)
-mkdir -p $XDG_RUNTIME_DIR
-chmod 700 $XDG_RUNTIME_DIR
-export WAYLAND_DISPLAY=wayland-1
-export XDG_SESSION_TYPE=wayland
+# 1. ADB 연결 확인
+echo "[*] Waydroid ADB 연결 시도 ($WAYDROID_IP)..."
+adb disconnect $WAYDROID_IP:5555 &> /dev/null
+adb connect $WAYDROID_IP:5555
+sleep 2
 
-# 2. 가상 그래픽 서버(Weston) 리셋 및 가동
-echo "[*] 가상 그래픽 서버(Weston) 시작 중..."
-sudo pkill -9 weston &> /dev/null
-rm -f $XDG_RUNTIME_DIR/wayland-1*
-weston --backend=headless-backend.so --socket=wayland-1 --width=1080 --height=1920 &
-sleep 5
-
-# 3. Waydroid 세션 시작 및 준비 대기
-echo "[*] Waydroid 세션 시작 및 부팅 대기 (최대 60초)..."
-waydroid session start &
-
-# 부팅 완료 메시지 감시
-timeout 60 bash -c 'until waydroid status | grep -q "RUNNING"; do sleep 2; done'
-
-if waydroid status | grep -q "RUNNING"; then
-    echo "[+] 안드로이드 시스템 준비 완료!"
-else
-    echo "[!] 부팅 시간이 초과되었습니다. 상태를 확인하세요."
+# 연결 상태 검증
+if ! adb devices | grep -q "$WAYDROID_IP:5555.*device"; then
+    echo "[!] ADB 연결 실패! 'waydroid_setup.sh'가 정상 완료되었는지 확인하세요."
     exit 1
 fi
+echo "[+] ADB 연결 성공!"
 
-# 4. APK 설치 (기존에 있으면 스킵 또는 업데이트)
-if [ -f "$APK_FILE" ]; then
-    echo "[*] APK 설치 진행 중: $APK_FILE"
-    waydroid app install "$APK_FILE"
+# 2. Split APK 통합 설치 (install-multiple)
+echo "[*] 모든 APK 조각 통합 설치 시작..."
+# -r: 기존 유지, -g: 권한 자동 승인
+adb -s $WAYDROID_IP:5555 install-multiple -r -g "${APK_FILES[@]}"
+
+if [ $? -eq 0 ]; then
+    echo "[+] 설치 성공! 게임을 실행합니다."
+    
+    # 3. 게임 강제 실행
+    echo "[*] 앱 실행: $PACKAGE_NAME"
+    adb -s $WAYDROID_IP:5555 shell am start -n "$MAIN_ACTIVITY"
+    
+    echo "==========================================="
+    echo "[+] 실행 완료! 20초 후 매크로를 돌려 다운로드를 시작하세요."
+    echo "==========================================="
+else
+    echo "[!] 설치 실패! APK 파일들이 현재 폴더에 모두 있는지 확인하세요."
+    exit 1
 fi
-
-# 5. 보안 우회 설정 (sudo 사용)
-echo "[*] 보안 우회 설정 주입 중..."
-sudo waydroid shell setprop ro.debuggable 0
-sudo waydroid shell setprop ro.secure 1
-sudo waydroid shell setprop ro.build.tags release-keys
-
-# 6. 게임 강제 실행
-echo "[*] 게임 실행: $PACKAGE_NAME"
-waydroid app launch $PACKAGE_NAME
-
-echo "==========================================="
-echo "[+] 모든 프로세스가 가동되었습니다!"
-echo "[*] 20초 후 매크로 명령어로 다운로드를 시작하세요."
-echo "==========================================="
-
